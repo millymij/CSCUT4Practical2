@@ -1,34 +1,125 @@
 import java.io.*;
-import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
-import javax.swing.*;
-import java.lang.Number;
+import java.io.FileNotFoundException;
 
 /**
- * 
- * CSCU9T4 Java strings and files exercise.
- *
+ * CSCU9T4
+ * Student id 2932358
  */
 public class FilesInOut {
 
+    /**
+     * Based on the value of capitalize, this method decides whether to capitalize a given text
+     * @param text
+     * @param capitalize
+     * @return
+     */
+    public static String capitalization(String text, boolean capitalize) {
+        if (capitalize) {
+            // capitalize all
+            return text.toUpperCase();
+        } else {
+            // capitalize just first letter
+            return text.substring(0, 1).toUpperCase() + text.substring(1);
+        }
+    }
+
     public static void main(String[] args) {
-        // Replace this with statements to set the file name (input) and file name (output).
-        // Initially it will be easier to hardcode suitable file names.
 
-        // Set up a new Scanner to read the input file.
-        // Processing line by line would be sensible here.
-        // Initially, echo the text to System.out to check you are reading correctly.
-        // Then add code to modify the text to the output format.
+        File input;
+        PrintWriter writingOutput;
+        boolean capitalize;
 
-        // Set up a new PrintWriter to write the output file.
-        // Add suitable code into the above processing (because you need to do this line by line also.
-        // That is, read a line, write a line, loop.
+        try {
+            // selecting input files
+            System.out.println("Please supply filename for input:");
+            Scanner userInput = new Scanner(System.in);
+            String inputFileName = userInput.nextLine();
+            // selecting output files
+            System.out.println("Please supply filename for output:");
+            String outputFileName = userInput.nextLine();
+            // close scanner
+            userInput.close();
 
-        // Finally, add code to read the filenames as arguments from the command line.
+            try {
+                // use user inputs to find the correspondent files
+                File inputFile = new File(inputFileName);
+                Scanner inFile = new Scanner(inputFile);
+                File outputFile = new File(outputFileName);
+                Scanner outFile = new Scanner(outputFile);
+                // close scanner
+                inFile.close();
+                outFile.close();
+            }
+            catch (IOException e) {
+                System.err.println("IOException: " + e.getMessage()
+                        + " not found");
+            }
 
-        System.out.println("You need to add your own code to do anything");
+            // argument selection
+            for (int i = 0; i < args.length; i++) {
+                input = new File(inputFileName);
+                writingOutput = new PrintWriter(outputFileName);
 
-    } // main
+                // look if one of the arguments is starts with -u, like "-u input.txt"
+                if (args[i].equalsIgnoreCase("-u "+ inputFileName)) {
+                    // based on the -u flag, we decide whether to capitalize all the text or not
+                    capitalize = true;
+                }
+                else {
+                    capitalize = false;
+                }
+                // scanner the lines in the input file
+                Scanner sc = new Scanner(input);
+                while (sc.hasNextLine()) {
+                    String lines = sc.nextLine();
+                    String space = " ";
+                    // print the lines in the terminal
+                    System.out.println(lines);
+                    // splits lines into tokens. Saves them in an array
+                    String[] tokens = lines.split(space);
 
-} // FilesInOut
+                    // look at all the tokens
+                    for (int j = 0; j < tokens.length; j++) {
+                        // if we have name, surname and date (3 tokens)
+                        if (tokens.length == 3) {
+                            // capitalize first letter name and surname
+                            if (j == 0 || j == 1) {
+                                tokens[j] = capitalization(tokens[j], capitalize);
+                            } else {
+                                // format data
+                                tokens[j] = tokens[j].substring(0, 2) + "/" + tokens[j].substring(2, 4) + "/" + tokens[j].substring(4);
+                            }
+                        }
+                        // if we have also the middle name initial, we have 4 tokens
+                        else if (tokens.length == 4) {
+                            // capitalize first letter name and surname
+                            if (j == 0 || j == 2) {
+                                tokens[j] = capitalization(tokens[j], capitalize);
+                            }
+                            // capitalize middle name initial and add dot
+                            else if (j == 1) {
+                                tokens[j] = tokens[j].toUpperCase() + ".";
+                            } else {
+                                // format data
+                                tokens[j] = tokens[j].substring(0, 2) + "/" + tokens[j].substring(2, 4) + "/" + tokens[j].substring(4);
+                            }
+                        }
+                    }
+                    String outputLine = "";
+                    if (tokens.length == 3) {
+                        outputLine = outputLine.concat(tokens[0] + "\t\t" + tokens[1] + "\t" + tokens[2]);
+                    } else if (tokens.length == 4) {
+                        outputLine = outputLine.concat(tokens[0] + "\t" + tokens[1] + "\t" + tokens[2] + "\t" + tokens[3]);
+                    }
+                    // write the text in the output file
+                    writingOutput.println(outputLine);
+                }
+                writingOutput.close();
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }// main
+}// FilesInOut
